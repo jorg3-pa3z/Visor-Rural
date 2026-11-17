@@ -1,0 +1,11 @@
+<style>
+    body { font-family: 'Inter', sans-serif; }
+    #map { height: calc(100vh - 5rem); width: 100%; }
+    .custom-modal { animation: fadeIn 0.2s ease-out; }
+    .alert_svg { 
+        filter: brightness(0) saturate(100%) invert(88%) sepia(83%) saturate(1352%) hue-rotate(359deg) brightness(104%) contrast(104%); 
+        float: left;
+        width: 13px;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+</style>
