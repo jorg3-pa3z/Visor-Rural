@@ -185,6 +185,41 @@ async function obtenerArea(numero_padron, codigo_depto) {
   }
 }
 
+async function obtenerArea2(numero_padron, codigo_depto) {
+  const url =
+    "http://gis.catastro.gub.uy/arcgis/rest/services/v2022/Mapa_Base_DNCv_11_2022Prod/MapServer/14/query?f=json" +
+    "&where=" +
+    encodeURIComponent(
+      `NUMDEPTO = ${codigo_depto} AND NUMPAD = ${numero_padron}`,
+    ) +
+    "&returnGeometry=false" +
+    "&spatialRel=esriSpatialRelIntersects" +
+    "&outFields=*";
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Validar que existan features
+    if (!data.features || data.features.length === 0) {
+      //showAlert("Área no encontrada en Catastro.");
+      return null;
+    }
+
+    return data.features[0].attributes;
+  } catch (error) {
+    console.error("Error al obtener el área (Catastro):", error);
+    return null;
+  }
+}
+
 async function obtenerJOBID(numero_padron, codigo_depto) {
   const url =
     "https://dgrn.mgap.gub.uy/arcgis/rest/services/CONEAT/gpCroquisParcelas/GPServer/CroquisParcelas/submitJob?f=json&Padrones=" +
@@ -234,7 +269,7 @@ async function obtenerURLConeat(jobId) {
     const pdfConeat = await response.json();
 
     // Validar que existan features
-    if (!pdfConeat) {
+    if (!pdfConeat || !pdfConeat.value) {
       //showAlert("Indice de productividad no encontrado.");
       return null;
     }
@@ -268,7 +303,8 @@ function buscarPadron(numero_padron, codigo_depto) {
         }
 
         map.fitBounds(currentPolygonLayer.getBounds(), { padding: [50, 50] });
-        obtenerArea(numero_padron, codigo_depto).then((area) => {
+
+        /*obtenerArea(numero_padron, codigo_depto).then((area) => {
           currentAttributes = area;
           obtenerJOBID(numero_padron, codigo_depto).then((jobId) => {
             setTimeout(function () {
@@ -279,12 +315,48 @@ function buscarPadron(numero_padron, codigo_depto) {
               });
             }, 2000);
           });
+        });*/
+
+        obtenerArea(numero_padron, codigo_depto).then((area) => {
+          currentAttributes = area;
+
+          if (area === null) {
+            // Sin resultados en CONEAT → consultar Catastro
+            const control_deptos = document.getElementById("departamentos");
+            const numero_Depto =
+              control_deptos.options[control_deptos.selectedIndex].attributes[
+                "data-code"
+              ].value;
+
+            obtenerArea2(numero_padron, numero_Depto).then(
+              (attributesArray) => {
+                currentAttributesCatastro = attributesArray;
+                console.log("Attributes Catastro:", attributesArray);
+                continuarFlujo(numero_padron, codigo_depto);
+              },
+            );
+          } else {
+            // CONEAT devolvió datos → flujo normal
+            continuarFlujo(numero_padron, codigo_depto);
+          }
         });
       } catch (error) {
         console.error("Error al buscar padrón:", error);
         showAlert("Ocurrió un error al procesar la geometría del padrón.");
       }
     }
+  });
+}
+
+function continuarFlujo(numero_padron, codigo_depto) {
+  obtenerJOBID(numero_padron, codigo_depto).then((jobId) => {
+    setTimeout(function () {
+      obtenerURLConeat(jobId).then((url) => {
+        pdfURL = url;
+        actualizarCardConDistancias();
+        agregarAlHistorial(numero_padron, codigo_depto);
+      });
+    }, 2000);
   });
 }
 
@@ -307,6 +379,7 @@ let userMarker = null;
 let fallbackMarker = null;
 let userLocationCoords = null;
 let currentAttributes = null;
+let currentAttributesCatastro = null;
 let currentPolygonLatLngs = null;
 
 // Default fallback location requested
@@ -489,7 +562,7 @@ function actualizarCardConDistancias() {
     gpsHtml = `<p class="text-sky-300"><strong>Distancia desde GPS:</strong> ${distanciaGps.toLocaleString()} metros</p>`;
   }
 
-  if (!currentAttributes) {
+  if (!currentAttributes && !currentAttributesCatastro) {
     content.innerHTML = `
                     <p><strong>Departamento:</strong> ${depto_text}</p>
                     <p><img src="exclamation-triangle.svg" class="alert_svg">&nbsp;<strong>Índice de Productividad no encontrado.</strong></p>
@@ -500,9 +573,9 @@ function actualizarCardConDistancias() {
   } else {
     content.innerHTML = `
                     <p><strong>Departamento:</strong> ${depto_text}</p>
-                    <p><strong>Área:</strong> ${currentAttributes.AREAHA} ha (${currentAttributes.AREAMC.toLocaleString()} m²)</p>
-                    <p><strong>Índice de Productividad:</strong> ${currentAttributes.IND_CONEAT}</p>
-                    <p><strong>Índice de Valor Real:</strong> ${currentAttributes.IND_VR}</p>
+                    <p><strong>Área:</strong> ${currentAttributes ? currentAttributes.AREAHA : currentAttributesCatastro.VALAREAH} ha (${currentAttributes ? currentAttributes.AREAMC.toLocaleString() : currentAttributesCatastro.VALAREAM2} m²)</p>
+                    <p><strong>Índice de Productividad:</strong> ${currentAttributes ? currentAttributes.IND_CONEAT : currentAttributesCatastro.VALIP}</p>
+                    <p><strong>Índice de Valor Real:</strong> ${currentAttributes ? currentAttributes.IND_VR : currentAttributesCatastro.VALIVR}</p>
                     <a href="${pdfURL}" target="_blank" rel="noopener noreferrer" style="width:170px;display:${pdfURL ? "flex" : "none"};"
                         class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition shadow flex items-center gap-1.5 no-underline">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
