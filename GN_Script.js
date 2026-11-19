@@ -39,8 +39,15 @@ function obtenerHistorial() {
 }
 
 function limpiarHistorial() {
+  map.remove();
+  map = null;
+  inicializarMapa();
+  map.setView(fallbackCoords, 11);
   historialPadrones = [];
   renderizarHistorial();
+
+  const card = document.getElementById("infoCard");
+  card.classList.add("hidden");
 }
 
 /**
@@ -108,7 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
 async function obtenerCoordenadas(numero_padron, codigo_depto) {
   const inputVal = document.getElementById("padronInput").value.trim();
   const codDepto = document.getElementById("departamentos").value;
-  //const dataset = dataPadrones[inputVal];
 
   if (!inputVal) {
     showAlert(
@@ -360,20 +366,6 @@ function continuarFlujo(numero_padron, codigo_depto) {
   });
 }
 
-// Initialize map centered around Uruguay
-const map = L.map("map").setView([-30.5, -57.0], 11);
-
-// Add Esri World Imagery Satellite Tile Layer
-L.tileLayer(
-  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-  {
-    maxZoom: 19,
-    attribution:
-      "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
-    detectRetina: true,
-  },
-).addTo(map);
-
 let currentPolygonLayer = null;
 let userMarker = null;
 let fallbackMarker = null;
@@ -381,16 +373,44 @@ let userLocationCoords = null;
 let currentAttributes = null;
 let currentAttributesCatastro = null;
 let currentPolygonLatLngs = null;
+let fallbackCoords = null;
+let map = null;
 
-// Default fallback location requested
-const fallbackCoords = [-30.4042769, -56.4730174];
+inicializarMapa();
 
-// Add fallback marker initially
-fallbackMarker = L.marker(fallbackCoords, {
-  title: "Ubicación por defecto",
-})
-  .addTo(map)
-  .bindPopup("<b>Ubicación por defecto</b><br>-30.4042769, -56.4730174");
+function inicializarMapa() {
+  // Initialize map centered around Uruguay
+  map = L.map("map").setView([-30.5, -57.0], 11);
+
+  // Add Esri World Imagery Satellite Tile Layer
+  L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {
+      maxZoom: 19,
+      attribution:
+        "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+      detectRetina: true,
+    },
+  ).addTo(map);
+
+  currentPolygonLayer = null;
+  userMarker = null;
+  fallbackMarker = null;
+  userLocationCoords = null;
+  currentAttributes = null;
+  currentAttributesCatastro = null;
+  currentPolygonLatLngs = null;
+
+  // Default fallback location requested
+  fallbackCoords = [-30.4042769, -56.4730174];
+
+  // Add fallback marker initially
+  fallbackMarker = L.marker(fallbackCoords, {
+    title: "Ubicación por defecto",
+  })
+    .addTo(map)
+    .bindPopup("<b>Ubicación por defecto</b><br>-30.4042769, -56.4730174");
+}
 
 function utmToLatLon(easting, northing, zone = 21, southernHemisphere = true) {
   const a = 6378137.0;
@@ -543,6 +563,8 @@ function actualizarCardConDistancias() {
   const padron_value = document.getElementById("padronInput").value;
   const depto_control = document.getElementById("departamentos");
   const depto_text = depto_control.options[depto_control.selectedIndex].text;
+  const numero_padron = document.getElementById("padronInput").value;
+  const codigo_depto = document.getElementById("departamentos").value;
 
   title.innerText = `Padrón N° ${padron_value}`;
 
@@ -584,6 +606,13 @@ function actualizarCardConDistancias() {
                         </svg>
                         Ver Croquis CONEAT
                     </a>
+                    <p>
+                      <button type="button" style="width:135px;display:${pdfURL ? "none" : "flex"};"
+                              onclick="continuarFlujo(${numero_padron}, '${codigo_depto}')"
+                              class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition shadow">
+                          Generar Croquis
+                      </button>
+                    </p>
                     <hr class="border-slate-700 my-1">
                     <p class="text-amber-300"><strong>Distancia (Ubicación por defecto):</strong> ${distanciaFallback.toLocaleString()} metros</p>
                     ${gpsHtml}

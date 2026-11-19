@@ -18,47 +18,78 @@
 
 <body class="bg-slate-900 flex flex-col h-screen overflow-hidden text-slate-100">
 
-    <header class="bg-slate-900/90 border-b border-slate-800 text-white shadow-md z-10 p-4 flex flex-col md:flex-row items-center justify-between gap-4 backdrop-blur">
-        <div class="flex items-center space-x-3" >
-            <img src="GN_logo-06.png" width="50px">
+    <header class="bg-slate-900/90 border-b border-slate-800 text-white shadow-md z-10 p-3 sm:p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4 backdrop-blur">
+
+        <!-- Logo + título -->
+        <div class="flex items-center space-x-3 flex-shrink-0">
+            <img src="GN_logo-06.png" width="50px" alt="Logo">
             <div>
-                <h1 class="text-xl font-bold tracking-tight text-white">Ganadera del Norte</h1>
-                <p class="text-xs text-emerald-400 font-medium">Informacion de Padrones</p>
+                <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white leading-tight">Ganadera del Norte</h1>
+                <p class="text-[11px] sm:text-xs text-emerald-400 font-medium">Informacion de Padrones</p>
             </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
-            <button onclick="obtenerUbicacionActual()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition shadow flex items-center gap-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        <!-- Controles -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
+
+            <!-- Botón Mi Ubicación (izquierda) -->
+            <button onclick="obtenerUbicacionActual()"
+                    class="w-full sm:w-auto bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition shadow flex items-center justify-center gap-1.5 flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
                 Mi Ubicación
             </button>
-            <div class="flex items-center space-x-2 bg-slate-800 p-1.5 rounded-lg border border-slate-700 shadow-inner">
-                <label for="departamentos" class="text-xs font-semibold text-slate-300 px-2">DEPTO:</label>
-                <select id="departamentos" class="bg-slate-900 text-white text-sm px-3 py-1.5 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-slate-700">
-                    <option data-code="0" value="" disabled selected>Seleccione</option>
-                    <option data-code="7" value="G">ARTIGAS</option>
-                    <option data-code="1" value="A">CANELONES</option>
-                    <option data-code="5" value="E">CERRO LARGO</option>
-                    <option data-code="12" value="L">COLONIA</option>
-                    <option data-code="17" value="Q">DURAZNO</option>
-                    <option data-code="14" value="N">FLORES</option>
-                    <option data-code="15" value="O">FLORIDA</option>
-                    <option data-code="16" value="P">LAVALLEJA</option>
-                    <option data-code="2" value="B">MALDONADO</option>
-                    <option data-code="19" value="V">MONTEVIDEO</option>
-                    <option data-code="9" value="I">PAYSANDU</option>
-                    <option data-code="10" value="J">RIO NEGRO</option>
-                    <option data-code="6" value="F">RIVERA</option>
-                    <option data-code="3" value="C">ROCHA</option>
-                    <option data-code="8" value="H">SALTO</option>
-                    <option data-code="13" value="M">SAN JOSE</option>
-                    <option data-code="11" value="K">SORIANO</option>
-                    <option data-code="18" value="R">TACUAREMBO</option>
-                    <option data-code="4" value="D">TRENTA Y TRES</option>
-                </select>
-                <label for="padronInput" class="text-xs font-semibold text-slate-300 px-2">PADRÓN:</label>
-                <input type="text" id="padronInput" placeholder="Ej: 6964, 6966, 6967, 6968" class="bg-slate-900 text-white placeholder-slate-500 text-sm px-3 py-1.5 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 w-32 border border-slate-700">               
-                <button id="btnBuscar" onclick="buscarPadron(document.getElementById('padronInput').value, document.getElementById('departamentos').value)" disabled class="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-600 disabled:cursor-not-allowed disabled:hover:bg-slate-600 text-white text-sm font-semibold px-4 py-1.5 rounded transition shadow">
+
+            <!-- Formulario DEPTO + PADRÓN + Buscar -->
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 bg-slate-800 p-2 rounded-lg border border-slate-700 shadow-inner w-full sm:w-auto">
+
+                <!-- DEPTO -->
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <label for="departamentos"
+                        class="text-[11px] sm:text-xs font-semibold text-slate-300 whitespace-nowrap">DEPTO:</label>
+                    <select id="departamentos"
+                            class="flex-1 sm:flex-none bg-slate-900 text-white text-sm px-2 py-1.5 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-slate-700 min-w-0">
+                            <option data-code="0" value="" disabled selected>Seleccione</option>
+                            <option data-code="7" value="G">ARTIGAS</option>
+                            <option data-code="1" value="A">CANELONES</option>
+                            <option data-code="5" value="E">CERRO LARGO</option>
+                            <option data-code="12" value="L">COLONIA</option>
+                            <option data-code="17" value="Q">DURAZNO</option>
+                            <option data-code="14" value="N">FLORES</option>
+                            <option data-code="15" value="O">FLORIDA</option>
+                            <option data-code="16" value="P">LAVALLEJA</option>
+                            <option data-code="2" value="B">MALDONADO</option>
+                            <option data-code="19" value="V">MONTEVIDEO</option>
+                            <option data-code="9" value="I">PAYSANDU</option>
+                            <option data-code="10" value="J">RIO NEGRO</option>
+                            <option data-code="6" value="F">RIVERA</option>
+                            <option data-code="3" value="C">ROCHA</option>
+                            <option data-code="8" value="H">SALTO</option>
+                            <option data-code="13" value="M">SAN JOSE</option>
+                            <option data-code="11" value="K">SORIANO</option>
+                            <option data-code="18" value="R">TACUAREMBO</option>
+                            <option data-code="4" value="D">TRENTA Y TRES</option>
+                    </select>
+                </div>
+
+                <!-- PADRÓN -->
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <label for="padronInput"
+                        class="text-[11px] sm:text-xs font-semibold text-slate-300 whitespace-nowrap">PADRÓN:</label>
+                    <input type="text" id="padronInput"
+                        placeholder="Ej: 6964, 6966, 6967, 6968"
+                        class="flex-1 sm:flex-none bg-slate-900 text-white placeholder-slate-500 text-sm px-2 py-1.5 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-slate-700 min-w-0 sm:w-32">
+                </div>
+
+                <!-- Botón Buscar -->
+                <button id="btnBuscar"
+                        onclick="buscarPadron(document.getElementById('padronInput').value, document.getElementById('departamentos').value)"
+                        disabled
+                        class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-600 disabled:cursor-not-allowed disabled:hover:bg-slate-600 text-white text-sm font-semibold px-4 py-1.5 rounded transition shadow">
                     Buscar
                 </button>
             </div>
