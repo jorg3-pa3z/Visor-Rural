@@ -103,6 +103,7 @@
     <main class="flex-1 relative">
         <div id="map"></div>
         
+        /*
         <!-- Info popup card overlay with dual distances -->
         <div id="infoCard" style="bottom:16%;" class="absolute right-6 bg-slate-900/95 backdrop-blur-md shadow-2xl rounded-xl p-4 z-[400] max-w-sm hidden border border-slate-700 text-slate-200">
             <div class="flex justify-between items-start mb-2">
@@ -111,6 +112,40 @@
             </div>
             <div id="cardContent" class="text-xs text-slate-300 space-y-2"></div>
         </div>
+        */
+
+    <!-- Info popup card overlay with dual distances -->
+    <div id="infoCard" style="bottom:16%;"
+        class="absolute right-4 md:right-6 bg-slate-900/95 backdrop-blur-md shadow-2xl rounded-xl p-4 z-[400] max-w-sm hidden border border-slate-700 text-slate-200">
+
+        <!-- Cabecera clickeable (colapsa/despliega en móvil) -->
+        <div id="infoCardHeader"
+            class="flex justify-between items-start mb-2 cursor-pointer md:cursor-default"
+            onclick="toggleInfoCard()">
+            <h3 id="cardTitle" class="font-bold text-emerald-400 text-base">Detalles del Padrón</h3>
+
+            <div class="flex items-center gap-2">
+                <!-- Chevron visible solo en móvil (< 800px) -->
+                <svg id="infoCardChevron"
+                    class="w-4 h-4 text-slate-400 transition-transform duration-200 md:hidden"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 9l-7 7-7-7"></path>
+                </svg>
+                <!-- Botón cerrar -->
+                <button onclick="event.stopPropagation(); cerrarCard()"
+                        class="text-slate-400 hover:text-slate-200 font-bold text-lg">&times;</button>
+            </div>
+        </div>
+
+        <!-- Contenido colapsable en móvil -->
+        <div id="cardContent"
+            class="text-xs text-slate-300 space-y-2
+                    overflow-hidden transition-all duration-300
+                    max-h-0 opacity-0 md:max-h-none md:opacity-100">
+            <!-- Aquí se inyecta el contenido dinámicamente -->
+        </div>
+    </div>
 
         <!-- Custom Notification Modal -->
         <div id="customModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-[9999] flex items-center justify-center hidden">

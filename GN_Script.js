@@ -619,7 +619,8 @@ function actualizarCardConDistancias() {
                 `;
   }
 
-  card.classList.remove("hidden");
+  mostrarInfoCard();
+  //card.classList.remove("hidden");
 }
 
 function cerrarCard() {
@@ -640,3 +641,104 @@ window.onload = function () {
   map.setView(fallbackCoords, 11);
   //seleccionarPadron(7442);
 };
+
+const INFO_CARD_BREAKPOINT = 800; // px
+
+/**
+ * Indica si estamos en resolución pequeña (< 800px).
+ */
+function esPantallaPequena() {
+  return window.innerWidth < INFO_CARD_BREAKPOINT;
+}
+
+/**
+ * Colapsa o despliega el contenido de la infoCard (solo en móvil).
+ */
+function toggleInfoCard() {
+  if (!esPantallaPequena()) return; // En desktop no hace nada
+
+  const contenido = document.getElementById("cardContent");
+  const chevron = document.getElementById("infoCardChevron");
+  if (!contenido) return;
+
+  const estaColapsado = contenido.classList.contains("max-h-0");
+
+  if (estaColapsado) {
+    // Desplegar
+    contenido.classList.remove("max-h-0", "opacity-0");
+    contenido.classList.add("max-h-[60vh]", "opacity-100", "overflow-y-auto");
+    if (chevron) chevron.style.transform = "rotate(180deg)";
+  } else {
+    // Colapsar
+    contenido.classList.remove(
+      "max-h-[60vh]",
+      "opacity-100",
+      "overflow-y-auto",
+    );
+    contenido.classList.add("max-h-0", "opacity-0");
+    if (chevron) chevron.style.transform = "rotate(0deg)";
+  }
+}
+
+/**
+ * Asegura que al mostrar la card en móvil, arranque colapsada.
+ * Llama a esto cada vez que hagas infoCard.classList.remove('hidden').
+ */
+function mostrarInfoCard() {
+  const card = document.getElementById("infoCard");
+  if (!card) return;
+
+  card.classList.remove("hidden");
+
+  const contenido = document.getElementById("cardContent");
+  const chevron = document.getElementById("infoCardChevron");
+
+  if (esPantallaPequena()) {
+    // Colapsado por defecto en móvil
+    contenido.classList.remove(
+      "max-h-[60vh]",
+      "opacity-100",
+      "overflow-y-auto",
+    );
+    contenido.classList.add("max-h-0", "opacity-0");
+    if (chevron) chevron.style.transform = "rotate(0deg)";
+  } else {
+    // En desktop siempre expandido
+    contenido.classList.remove("max-h-0", "opacity-0");
+    contenido.classList.add("max-h-none", "opacity-100");
+    if (chevron) chevron.style.transform = "rotate(0deg)";
+  }
+}
+
+/**
+ * Al cambiar el tamaño de la ventana, ajusta el estado de la card.
+ */
+window.addEventListener("resize", () => {
+  const card = document.getElementById("infoCard");
+  if (!card || card.classList.contains("hidden")) return;
+
+  const contenido = document.getElementById("cardContent");
+  const chevron = document.getElementById("infoCardChevron");
+
+  if (esPantallaPequena()) {
+    // Si pasa a móvil, colapsar
+    contenido.classList.remove(
+      "max-h-none",
+      "max-h-[60vh]",
+      "opacity-100",
+      "overflow-y-auto",
+    );
+    contenido.classList.add("max-h-0", "opacity-0");
+    if (chevron) chevron.style.transform = "rotate(0deg)";
+  } else {
+    // Si pasa a desktop, expandir siempre
+    contenido.classList.remove(
+      "max-h-0",
+      "opacity-0",
+      "max-h-[60vh]",
+      "overflow-y-auto",
+    );
+    contenido.classList.add("max-h-none", "opacity-100");
+    if (chevron) chevron.style.transform = "rotate(0deg)";
+  }
+});
