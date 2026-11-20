@@ -607,7 +607,7 @@ function actualizarCardConDistancias() {
                         Ver Croquis CONEAT
                     </a>
                     <p>
-                      <button type="button" style="width:135px;display:${pdfURL ? "none" : "flex"};"
+                      <button type="button" style="width:145px;display:${pdfURL ? "none" : "flex"};"
                               onclick="continuarFlujo(${numero_padron}, '${codigo_depto}')"
                               class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition shadow">
                           Generar Croquis
@@ -640,6 +640,12 @@ window.onload = function () {
   // Default center map to fallback location and select padron 732
   map.setView(fallbackCoords, 11);
   //seleccionarPadron(7442);
+
+  const infoCardHeader = document.getElementById("infoCard").children[0];
+
+  infoCardHeader.addEventListener("click", () => {
+    toggleInfoCard();
+  });
 };
 
 const INFO_CARD_BREAKPOINT = 800; // px
