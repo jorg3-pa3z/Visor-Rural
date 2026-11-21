@@ -288,6 +288,9 @@ async function obtenerURLConeat(jobId) {
 }
 
 function buscarPadron(numero_padron, codigo_depto) {
+  cerrarCard();
+  currentAttributes = null;
+  currentAttributesCatastro = null;
   // Uso
   obtenerCoordenadas(numero_padron, codigo_depto).then((rings) => {
     if (rings) {
@@ -309,19 +312,6 @@ function buscarPadron(numero_padron, codigo_depto) {
         }
 
         map.fitBounds(currentPolygonLayer.getBounds(), { padding: [50, 50] });
-
-        /*obtenerArea(numero_padron, codigo_depto).then((area) => {
-          currentAttributes = area;
-          obtenerJOBID(numero_padron, codigo_depto).then((jobId) => {
-            setTimeout(function () {
-              obtenerURLConeat(jobId).then((url) => {
-                pdfURL = url;
-                actualizarCardConDistancias();
-                agregarAlHistorial(numero_padron, codigo_depto);
-              });
-            }, 2000);
-          });
-        });*/
 
         obtenerArea(numero_padron, codigo_depto).then((area) => {
           currentAttributes = area;
@@ -362,7 +352,7 @@ function continuarFlujo(numero_padron, codigo_depto) {
         actualizarCardConDistancias();
         agregarAlHistorial(numero_padron, codigo_depto);
       });
-    }, 2000);
+    }, 3000);
   });
 }
 
@@ -598,6 +588,7 @@ function actualizarCardConDistancias() {
                     <p><strong>Área:</strong> ${currentAttributes ? currentAttributes.AREAHA : currentAttributesCatastro.VALAREAH} ha (${currentAttributes ? currentAttributes.AREAMC.toLocaleString() : currentAttributesCatastro.VALAREAM2} m²)</p>
                     <p><strong>Índice de Productividad:</strong> ${currentAttributes ? currentAttributes.IND_CONEAT : currentAttributesCatastro.VALIP}</p>
                     <p><strong>Índice de Valor Real:</strong> ${currentAttributes ? currentAttributes.IND_VR : currentAttributesCatastro.VALIVR}</p>
+                    <p style="display:${currentAttributesCatastro ? "flex" : "none"};"><img src="exclamation-triangle.svg" class="alert_svg">&nbsp;<strong>Datos obtenidos de Catastro.</strong></p>
                     <a href="${pdfURL}" target="_blank" rel="noopener noreferrer" style="width:170px;display:${pdfURL ? "flex" : "none"};"
                         class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition shadow flex items-center gap-1.5 no-underline">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -607,7 +598,7 @@ function actualizarCardConDistancias() {
                         Ver Croquis CONEAT
                     </a>
                     <p>
-                      <button type="button" style="width:145px;display:${pdfURL ? "none" : "flex"};"
+                      <button type="button" style="width:145px;display:${(!pdfURL && !currentAttributes) || pdfURL ? "none" : "flex"};"
                               onclick="continuarFlujo(${numero_padron}, '${codigo_depto}')"
                               class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition shadow">
                           Generar Croquis
